@@ -1,0 +1,98 @@
+def sales_summary(packs_purchased, dice_purchased, board_games_purchased):
+    """
+    Parameters:
+      packs_purchased: How many packs of trading cards each customer purchased.
+      dice_purchased: How many sets of dice were each customer purchased.
+      board_games_purchased: How many board games each customer purchased.
+    """
+    print("Welcome to the Ada's Game Emporium Sales Tracker!")
+    print()
+    
+    #first figure out number of customers
+    customer_count = len(packs_purchased)
+    
+    # create dictionary to store customer info
+    customer_dict = {}
+    
+    # create list to calculate playing card pack cost, accounting for price cut          per 36 packs purchased
+    card_cost = []
+
+    # create list for individual customer total calculations
+    customer_totals = []
+        
+    # script to account for card pack deal - has to account for multiples of 36
+    for i in range(customer_count):
+        if packs_purchased[i] == 36:
+            card_cost.append(125)
+        elif packs_purchased[i] > 36:
+            card_cost.append(
+                (packs_purchased[i]//36 * 125) + (packs_purchased[i] % 36 * 4.25)
+                )
+        else:
+            card_cost.append(packs_purchased[i] * 4.25)
+    
+    # load customer dictionary with dictionaries with customer info
+    for i in range(customer_count):
+        customer_dict[i] = {
+            "packs_purchased" : packs_purchased[i],
+            "card_cost" : card_cost[i],
+            "dice_purchased" : dice_purchased[i],
+            "dice_cost" : dice_purchased[i] * 11,
+            "board_games_purchased" : board_games_purchased[i],
+            "board_games_cost" : board_games_purchased[i] * 50
+            }
+        # once customer dictionary is created, use it to calculate individual customer total and add to dictionary
+        customer_totals.append(card_cost[i] + customer_dict[i]["dice_cost"] + customer_dict[i]["board_games_cost"])
+        customer_dict[i]["customer_total"] = customer_totals[i]
+
+    # reset i and cycle through customer dictionary to get individual and item totals formatted properly as price strings  
+    i = 0
+    for customer in customer_dict:
+        customer_total_str = "${:.2f}".format(customer_dict[i]["customer_total"])
+        card_total_str = "${:.2f}".format(card_cost[i])
+        dice_total_str = "${:.2f}".format(customer_dict[i]["dice_cost"])
+        game_total_str = "${:.2f}".format(customer_dict[i]["board_games_cost"])
+        print(f"Customer {i + 1} spent {customer_total_str}")
+        print(f">>> {card_total_str} for trading card packs")
+        print(f">>> {dice_total_str} for dice sets")
+        print(f">>> {game_total_str} for board games")
+        i += 1
+        print()   
+
+    # calculate total spent by all customers and turn into property formatted price string
+    total_all = 0
+    for i in range(customer_count):
+        total_all += customer_totals[i]
+    total_all_str = "${:.2f}".format(total_all)
+    print(f"Combined all customers paid {total_all_str} total")
+    
+    # calculate non-card total and format into price string, resetting i
+    non_cards_total = 0
+    i = 0
+    for customer in customer_dict:
+        non_cards_total += (customer_dict[i]["dice_cost"] + customer_dict[i]["board_games_cost"])
+        i += 1
+    non_cards_total_str = "${:.2f}".format(non_cards_total)
+    print(f"Non-trading card products (dice + board games) were "\
+          f"{non_cards_total_str} total")
+    print()
+    
+    # calculate highest total and format into price string
+    highest_total = customer_totals[0]
+    for i in range(customer_count):
+        if highest_total < customer_totals[i]:
+            highest_total = customer_totals[i]
+        else:
+            continue    
+    highest_total_str = "${:.2f}".format(highest_total)
+    print(f"{highest_total_str} was the most paid by any single customer")
+    
+    # figure out highest spender, made a list as there may be more than one
+    big_spender = []
+    for i in range(customer_count):
+        if customer_totals[i] == highest_total:
+            big_spender.append(f"#{i + 1}")
+        else:
+            continue
+    big_spender_string = ', '.join(big_spender)
+    print(f"The customer(s) that paid the most were: {big_spender_string}")
